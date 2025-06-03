@@ -1,19 +1,3 @@
--- BloxXchange Hub (Zephyrs-style UI com múltiplos jogos)
-local player = game.Players.LocalPlayer
-local userInputService = game:GetService("UserInputService")
-local runService = game:GetService("RunService")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-
--- Tela principal
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "BloxXchange_UI"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-
--- Toggle GUI (F8)
-local guiVisible = true
-userInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == Enum.KeyCode.F8 then
         guiVisible = not guiVisible
         screenGui.Enabled = guiVisible
     end
@@ -82,7 +66,7 @@ local function createTab(name)
     end)
 end
 
--- Criar abas em ordem
+-- Criar abas
 createTab("Geral")
 createTab("Brookhaven")
 createTab("Blox Fruits")
@@ -91,18 +75,17 @@ createTab("Grow a Garden")
 createTab("Settings")
 
 -- Ativar aba "Geral" por padrão
-if tabButtons[1] then
-    tabButtons[1]:Activate()
-    tabButtons[1].MouseButton1Click:Fire()
-end
+tabButtons[1].BackgroundColor3 = Color3.fromRGB(80, 80, 120)
+tabFrames["Geral"].Visible = true
 
--- Utilitário para adicionar botões em uma aba
+-- Função para adicionar botões
 local function addButton(tabName, text, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -20, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
     btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Font = Enum.Font.Gotham
     btn.TextSize = 14
     btn.Parent = tabFrames[tabName]
@@ -113,100 +96,3 @@ local function addButton(tabName, text, callback)
 
     btn.MouseButton1Click:Connect(callback)
 end
-
--- Geral
-addButton("Geral", "🛡️ Godmode", function()
-    if player.Character and player.Character:FindFirstChild("Humanoid") then
-        player.Character.Humanoid.Name = "1"
-        local newHum = player.Character.Humanoid:Clone()
-        newHum.Name = "Humanoid"
-        newHum.Parent = player.Character
-        player.Character:FindFirstChild("1"):Destroy()
-    end
-end)
-
--- Brookhaven
-addButton("Brookhaven", "📍 Teleportar Jogador", function()
-    local menu = Instance.new("Frame")
-    menu.Size = UDim2.new(0, 200, 0, 300)
-    menu.Position = UDim2.new(0.5, -100, 0.5, -150)
-    menu.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    menu.Parent = screenGui
-
-    local layout = Instance.new("UIListLayout", menu)
-    layout.Padding = UDim.new(0, 4)
-
-    for _, plr in pairs(game.Players:GetPlayers()) do
-        if plr ~= player then
-            local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(1, 0, 0, 30)
-            btn.Text = plr.Name
-            btn.BackgroundColor3 = Color3.fromRGB(70, 70, 100)
-            btn.TextColor3 = Color3.new(1, 1, 1)
-            btn.Parent = menu
-
-            btn.MouseButton1Click:Connect(function()
-                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    player.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
-                end
-                menu:Destroy()
-            end)
-        end
-    end
-end)
-
-addButton("Brookhaven", "🧲 Puxar Jogador", function()
-    local menu = Instance.new("Frame")
-    menu.Size = UDim2.new(0, 200, 0, 300)
-    menu.Position = UDim2.new(0.5, -100, 0.5, -150)
-    menu.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    menu.Parent = screenGui
-
-    local layout = Instance.new("UIListLayout", menu)
-    layout.Padding = UDim.new(0, 4)
-
-    for _, plr in pairs(game.Players:GetPlayers()) do
-        if plr ~= player then
-            local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(1, 0, 0, 30)
-            btn.Text = plr.Name
-            btn.BackgroundColor3 = Color3.fromRGB(70, 70, 100)
-            btn.TextColor3 = Color3.new(1, 1, 1)
-            btn.Parent = menu
-
-            btn.MouseButton1Click:Connect(function()
-                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    plr.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
-                end
-                menu:Destroy()
-            end)
-        end
-    end
-end)
-
--- Toggle noclip com F1
-local noclip = false
-userInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == Enum.KeyCode.F1 then
-        noclip = not noclip
-    end
-end)\n
-runService.Stepped:Connect(function()
-    if noclip and player.Character then
-        for _, part in pairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
-
--- Grow a Garden
-addButton("Grow a Garden", "💰 Auto Sell", function()
-    while task.wait(1) do
-        local sell = workspace:FindFirstChild("Sell")
-        if sell and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            player.Character.HumanoidRootPart.CFrame = sell.CFrame + Vector3.new(0, 3, 0)
-        end
-    end
-end)
